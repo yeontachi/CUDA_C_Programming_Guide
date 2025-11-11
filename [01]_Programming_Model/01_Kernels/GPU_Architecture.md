@@ -1,6 +1,6 @@
 ## 5.1 커널의 내부 동작 (VecAdd 예제 중심)
 
-### 1️⃣ 커널 호출 시점: CPU → GPU 명령 전달
+### 커널 호출 시점: CPU → GPU 명령 전달
 
 ```cpp
 VecAdd<<<1, N>>>(A, B, C);
@@ -19,7 +19,7 @@ GPU 내부에서는 이 명령이 **비동기적으로 스케줄링 준비 단�
 
 ---
 
-### 2️⃣ Grid, Block 생성 및 스케줄링
+### Grid, Block 생성 및 스케줄링
 
 `<<<1, N>>>`이라는 실행 구성은 다음 의미를 가진다:
 
@@ -38,7 +38,7 @@ GPU의 **GigaThread Engine**은 Grid 내 Block 단위로 일을 나눈다.
 
 ---
 
-### 3️⃣ SM 내부: 스레드 분할 및 Warp 생성
+### SM 내부: 스레드 분할 및 Warp 생성
 
 SM은 Block 내부의 N개의 스레드를 **Warp 단위(32 threads)**로 묶는다.
 
@@ -59,7 +59,7 @@ Warp 단위로 교차 발행(interleaving)되며 **latency hiding**을 수행한
 
 ---
 
-### 4️⃣ 스레드 실행 준비: 레지스터 할당 및 명령 디코딩
+### 스레드 실행 준비: 레지스터 할당 및 명령 디코딩
 
 `__global__ void VecAdd(...)` 커널이 실제로 실행되기 전,
 각 스레드에는 다음 리소스가 할당된다.
@@ -82,7 +82,7 @@ Warp 단위로 교차 발행(interleaving)되며 **latency hiding**을 수행한
 
 ---
 
-### 5️⃣ 실제 연산: Global Memory → Register → ALU → Global Memory
+### 실제 연산: Global Memory → Register → ALU → Global Memory
 
 이제 본격적으로 **연산 파이프라인**이 동작한다.
 
@@ -115,7 +115,7 @@ C[i] = A[i] + B[i];
 
 ---
 
-### 6️⃣ 메모리 트랜잭션의 실제 모습
+### 메모리 트랜잭션의 실제 모습
 
 만약 `N = 256`, `A`, `B`, `C`가 모두 연속된 float 배열이라면,
 Warp 0 (threadIdx 0~31)의 로드 명령은 다음과 같이 수행된다.
@@ -132,7 +132,7 @@ Warp 0 (threadIdx 0~31)의 로드 명령은 다음과 같이 수행된다.
 
 ---
 
-### 7️⃣ Warp Scheduler의 역할 (Latency Hiding)
+### Warp Scheduler의 역할 (Latency Hiding)
 
 한 Warp가 Global Memory로부터 데이터를 읽는 동안(약 400~800 cycle 지연),
 SM은 이 Warp를 **suspend**하고,
@@ -147,7 +147,7 @@ SM은 이 Warp를 **suspend**하고,
 
 ---
 
-### 8️⃣ 커널 종료와 결과 수집
+### 커널 종료와 결과 수집
 
 모든 스레드가 자신의 연산을 완료하면,
 SM은 이 Block의 상태를 **complete**로 표시하고 GigaThread Engine에 보고한다.
@@ -165,7 +165,7 @@ CPU의 메인 메모리로 결과가 복사된다.
 
 ---
 
-### 9️⃣ 요약: 내부 동작 흐름
+### 요약: 내부 동작 흐름
 
 | 단계            | GPU 내부에서 일어나는 일      | 주요 하드웨어 단위           |
 | ------------- | -------------------- | -------------------- |
@@ -181,7 +181,7 @@ CPU의 메인 메모리로 결과가 복사된다.
 
 ---
 
-### 🔸결론적으로
+### 결론적으로
 
 이 단순한 한 줄짜리 연산:
 
